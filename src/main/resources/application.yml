@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: fin-circle
+  datasource:
+    url: jdbc:postgresql://localhost:5432/fin-circle
+    username: varshith
+    password: Beast@098
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
