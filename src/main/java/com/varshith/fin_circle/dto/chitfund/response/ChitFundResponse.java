@@ -1,6 +1,7 @@
 package com.varshith.fin_circle.dto.chitfund.response;
 
 import com.varshith.fin_circle.dto.chitfund.ChitFundMemberDto;
+import com.varshith.fin_circle.dto.chitfund.MonthlyRecordDto;
 import com.varshith.fin_circle.enumeration.ChitFundStatus;
 import lombok.Builder;
 
@@ -22,6 +23,7 @@ public record ChitFundResponse(
         Instant createdAt,
         String owner,
         String coOwner,
-        List<ChitFundMemberDto> members
+        List<ChitFundMemberDto> members,
+        List<MonthlyRecordDto> monthlyRecords
 ) {
 }

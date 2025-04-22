@@ -9,8 +9,10 @@ import com.varshith.fin_circle.dto.chitfund.response.ChitFundsByUserTypeResponse
 import com.varshith.fin_circle.entity.User;
 import com.varshith.fin_circle.entity.chitfund.ChitFund;
 import com.varshith.fin_circle.entity.chitfund.ChitFundMember;
+import com.varshith.fin_circle.entity.chitfund.MonthlyRecord;
 import com.varshith.fin_circle.enumeration.ChitFundMemberType;
 import com.varshith.fin_circle.enumeration.ChitFundStatus;
+import com.varshith.fin_circle.enumeration.MONTHLY_RECORD_STATUS;
 import com.varshith.fin_circle.exception.ResourceNotFound;
 import com.varshith.fin_circle.repository.ChitFundRepository;
 import com.varshith.fin_circle.repository.UserRepository;
@@ -125,6 +127,21 @@ public class ChitFundService {
             }
             chitFund.setMembers(chitFundMembers);
         }
+
+
+//        add monthly records
+        List<MonthlyRecord>  monthlyRecords = new ArrayList<>();
+//        calculate total months
+        for(int i=1;i<=chitFundCreateRequest.totalMonths();i++){
+            MonthlyRecord monthlyRecord = MonthlyRecord.builder()
+                    .monthNumber(i)
+                    .status(MONTHLY_RECORD_STATUS.TO_BE_UPDATED)
+                    .isCompleted(false)
+                    .chitFund(chitFund)
+                    .build();
+            monthlyRecords.add(monthlyRecord);
+        }
+        chitFund.setMonthlyRecords(monthlyRecords);
         ChitFund savedChitFund = chitFundRepository.save(chitFund);
         return  ChitFundCreateResponseDto.builder()
                 .id(savedChitFund.getId())
@@ -160,6 +177,22 @@ public class ChitFundService {
            members.add(member);
        }
 
+
+        List<MonthlyRecordDto> monthlyRecords = new ArrayList<>();
+        for(MonthlyRecord monthlyRecord : retreviedChitFund.getMonthlyRecords()){
+            MonthlyRecordDto record = MonthlyRecordDto.builder()
+                    .id(monthlyRecord.getId())
+                    .monthNumber(monthlyRecord.getMonthNumber())
+                    .status(monthlyRecord.getStatus())
+                    .auctionDateTime(monthlyRecord.getAuctionDateTime())
+                    .totalCollectedAmount(monthlyRecord.getTotalCollectedAmount())
+                    .amountSaved(monthlyRecord.getAmountSaved())
+                    .isCompleted(monthlyRecord.getIsCompleted())
+                    .build();
+            monthlyRecords.add(record);
+        }
+
+
         return ChitFundResponse.builder()
                 .id(retreviedChitFund.getId())
                 .name(retreviedChitFund.getName())
@@ -174,6 +207,7 @@ public class ChitFundService {
                 .owner(retreviedChitFund.getOwner().getName())
                 .coOwner(retreviedChitFund.getCoOwner().getName())
                 .members(members)
+                .monthlyRecords(monthlyRecords)
                 .build();
     }
 
