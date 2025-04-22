@@ -8,6 +8,7 @@ import com.varshith.fin_circle.dto.chitfund.response.ChitFundResponse;
 import com.varshith.fin_circle.entity.User;
 import com.varshith.fin_circle.entity.chitfund.ChitFund;
 import com.varshith.fin_circle.entity.chitfund.ChitFundMember;
+import com.varshith.fin_circle.exception.DuplicateResourceException;
 import com.varshith.fin_circle.exception.InvalidOperationException;
 import com.varshith.fin_circle.exception.ResourceNotFound;
 import com.varshith.fin_circle.repository.ChitFundMemberRepository;
@@ -34,7 +35,7 @@ public class ChitFundMemberService {
     private final UserRepository userRepository;
 
     public ChitFundResponse addMember(Integer chitFundId,
-                                      List<Integer> userIds){
+                                      Set<Integer> userIds){
 //      check if chit fund is null
         if(chitFundId == null){
             throw new IllegalArgumentException("Chit fund id cannot be null");
@@ -51,6 +52,16 @@ public class ChitFundMemberService {
 
 //        extract existing members from chit fund
         List<ChitFundMember> chitFundMembers = retrievedChitFund.getMembers();
+
+//        check if users already exists in chitFund
+        Set<Integer> existingUserIds = chitFundMembers.stream().map(
+                chitFundMember -> chitFundMember.getUser().getId()
+        ).collect(Collectors.toSet());
+
+        boolean hasDuplicates = userIds.stream().anyMatch(existingUserIds::contains);
+        if (hasDuplicates) {
+            throw new DuplicateResourceException("Some users are already part of this chit fund.");
+        }
 
 //        map through userIds and add those users to chitFund and update the guarantor later
         for(Integer userId : userIds){
@@ -128,9 +139,10 @@ public class ChitFundMemberService {
                chitFundMember -> !usersToRemove.contains(chitFundMember.getId()))
                .toList();
 
-       List<ChitFundMember> guarantorsBeingRemoved = memberStillInChitFund.stream().filter(
-               member -> member.getGuarantorId() != null
-       ).filter(member -> usersToRemove.contains(member.getGuarantorId())).toList();
+       List<ChitFundMember> guarantorsBeingRemoved = memberStillInChitFund.stream()
+               .filter(member -> member.getGuarantorId() != null)
+               .filter(member -> usersToRemove.contains(member.getGuarantorId()))
+               .toList();
 
         if(!guarantorsBeingRemoved.isEmpty()){
             throw new InvalidOperationException("""

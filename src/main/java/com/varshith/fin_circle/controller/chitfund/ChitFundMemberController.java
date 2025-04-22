@@ -1,6 +1,7 @@
 package com.varshith.fin_circle.controller.chitfund;
 
-import com.varshith.fin_circle.dto.chitfund.*;
+import com.varshith.fin_circle.dto.chitfund.request.ChitFundMemberAdditionRequest;
+import com.varshith.fin_circle.dto.chitfund.request.ChitFundMemberRemovalRequest;
 import com.varshith.fin_circle.dto.chitfund.request.UpdateGuarantorRequest;
 import com.varshith.fin_circle.dto.chitfund.response.ChitFundMemberResponse;
 import com.varshith.fin_circle.dto.chitfund.response.ChitFundResponse;
@@ -8,7 +9,6 @@ import com.varshith.fin_circle.service.ChitFundMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -21,14 +21,14 @@ public class ChitFundMemberController {
 //    add user to chit fund
     @PatchMapping("/{chitFundId}/add")
     public ChitFundResponse addMember(@PathVariable Integer chitFundId,
-                                      @RequestBody List<Integer> userIds){
-        return chitFundMemberService.addMember(chitFundId, userIds);
+                                      @RequestBody ChitFundMemberAdditionRequest chitFundMemberAdditionRequest){
+        return chitFundMemberService.addMember(chitFundId, chitFundMemberAdditionRequest.userIds());
     }
 
     @PatchMapping("/{chitFundId}/remove")
     public ChitFundResponse removeMember(@PathVariable Integer chitFundId,
-                                                @RequestBody Set<Integer> usersToRemove){
-        return chitFundMemberService.removeMember(chitFundId, usersToRemove);
+                                         @RequestBody ChitFundMemberRemovalRequest chitFundMemberRemovalRequest){
+        return chitFundMemberService.removeMember(chitFundId, chitFundMemberRemovalRequest.memberIds());
     }
 
 //    update guarantor
